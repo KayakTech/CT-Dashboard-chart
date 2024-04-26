@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Chart from './components/Chart.vue'
-// import Test from './components/Test.vue'
-import type { IStroke } from './interfaces/IStroke';
 
 const strokes = [{
   id: 1,
@@ -56,7 +54,7 @@ const strokes = [{
   color: '#ffff00',
   progress: 30,
 },
-].filter((__, i) => i < 7);
+].filter((__, i) => i < 4);
 
 const strokesRef = ref(strokes);
 
@@ -65,9 +63,9 @@ setTimeout(() => {
   strokesRef.value[1].progress = 100
   strokesRef.value[2].progress = 100
   strokesRef.value[3].progress = 100
-  strokesRef.value[4].progress = 100
-  strokesRef.value[5].progress = 100
-  strokesRef.value[6].progress = 100
+  // strokesRef.value[4].progress = 100
+  // strokesRef.value[5].progress = 100
+  // strokesRef.value[6].progress = 100
 }, 5000);
 </script>
 

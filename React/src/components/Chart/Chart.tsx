@@ -83,8 +83,6 @@ type Props = {
   gap?: number
   strokeWidth?: number
   radius?: number
-  circleCenterX?: number
-  circleCenterY?: number
 };
 
 const startValues: Record<number, {
@@ -135,7 +133,7 @@ const startValues: Record<number, {
 };
 
 export const Chart: React.FC<Props> = ({
-  data, gap = 0.5, strokeWidth, radius, circleCenterX, circleCenterY,
+  data, gap = 0.5, strokeWidth, radius,
 }) => {
   const [ localData, setLocalData ] = useState<IStroke[]>(data);
   const dataLength = useMemo(() => data.length, [ data.length ]);
@@ -166,14 +164,16 @@ export const Chart: React.FC<Props> = ({
     [ gapWithStrokeWidth, localData.length, r ],
   );
 
-  const localCircleCenterX = useMemo(() => circleCenterX || 40, [ circleCenterX ]);
-  const localCircleCenterY = useMemo(() => circleCenterY || 60, [ circleCenterY ]);
-
+  const localCircleCenterX = useMemo(() => 40, [ ]);
+  const localCircleCenterY = useMemo(() => 60, [ ]);
   const renderStrokes = useMemo(() => {
     return localData.map((item, i) => {
       const newR = r + (i * gapWithStrokeWidth);
       const secondDash = (newR) * circleCoef;
+      const lengthTopLine = 100 - (localCircleCenterX
+         + (r + (dataLength * gapWithStrokeWidth)) + charStrokeWidth);
 
+      const endCenterLine = 100 - (lengthTopLine * 0.35);
       const circleCenterBefore = localCircleCenterX - 0.2;
       const circleCenterAfter = localCircleCenterY + 0.1;
 
@@ -196,7 +196,11 @@ export const Chart: React.FC<Props> = ({
         calculateInterest(totalSize, centerLineSize) * 100,
       ]);
 
-      const fillCenterLineY = circleCenterBefore + ((circleCenterAfter) * parts[3]);
+      const fillCenterLineY = Math.max(
+        (circleCenterBefore + ((circleCenterAfter) * parts[3]) - (lengthTopLine * 0.35)),
+        circleCenterBefore,
+      );
+      console.log(fillCenterLineY);
       const fillBottomLineX = bottomLineY1 + ((circleCenterAfter - bottomLineY1) * parts[1]);
       const fillTopLineY1 = topLineY1 * parts[0];
 
@@ -216,6 +220,7 @@ export const Chart: React.FC<Props> = ({
         fillStrokeDasharray,
         circleCenterBefore,
         circleCenterAfter,
+        endCenterLine,
         ...item,
       };
     });
@@ -255,6 +260,7 @@ export const Chart: React.FC<Props> = ({
           id,
           circleCenterBefore,
           circleCenterAfter,
+          endCenterLine,
         }) => {
           return (
             <>
@@ -289,7 +295,7 @@ export const Chart: React.FC<Props> = ({
               />
               <line
                 x1={ circleCenterBefore }
-                x2="100"
+                x2={ endCenterLine }
                 y1={ centerLineY }
                 y2={ centerLineY }
                 strokeWidth={ charStrokeWidth }

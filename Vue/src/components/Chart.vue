@@ -74,6 +74,9 @@ const updateStrokes = (inputData: Array<IStroke>): IStrokeDetailed[] => {
   return inputData.map((item, i) => {
     const newR = r + (i * gapWithStrokeWidth);
     const secondDash = (newR) * circleCoef;
+    const lengthTopLine = 100 - (localCircleCenterX
+      + (r + (props.data.length * gapWithStrokeWidth)) + charStrokeWidth);
+    const endCenterLine = 100 - (lengthTopLine * 0.35);
 
     const circleCenterBefore = localCircleCenterX - 0.2;
     const circleCenterAfter = localCircleCenterY + 0.1;
@@ -97,7 +100,11 @@ const updateStrokes = (inputData: Array<IStroke>): IStrokeDetailed[] => {
       calculateInterest(totalSize, centerLineSize) * 100,
     ]);
 
-    const fillCenterLineY = circleCenterBefore + ((circleCenterAfter) * parts[3]);
+
+    const fillCenterLineY = Math.max(
+      (circleCenterBefore + ((circleCenterAfter) * parts[3]) - (lengthTopLine * 0.35)),
+      circleCenterBefore,
+    );
     const fillBottomLineX = bottomLineY1 + ((circleCenterAfter - bottomLineY1) * parts[1]);
     const fillTopLineY1 = topLineY1 * parts[0];
 
@@ -117,6 +124,7 @@ const updateStrokes = (inputData: Array<IStroke>): IStrokeDetailed[] => {
       fillStrokeDasharray,
       circleCenterBefore,
       circleCenterAfter,
+      endCenterLine,
       ...item,
     };
   });
@@ -135,17 +143,11 @@ const props = defineProps({
   strokeWidth: {
     type: Number,
     required: false
-  }, radius: {
-    type: Number,
-    required: false
-  }, circleCenterX: {
-    type: Number,
-    required: false
   },
-  circleCenterY: {
+  radius: {
     type: Number,
     required: false
-  },
+  }
 });
 
 const startValues: Record<number, {
@@ -202,8 +204,8 @@ const { strokes } = reactive<{
   strokes: []
 });
 
-const localCircleCenterX = props.circleCenterX || 40;
-const localCircleCenterY = props.circleCenterY || 60;
+const localCircleCenterX = 40;
+const localCircleCenterY = 60;
 const charStrokeWidth = props.strokeWidth || startValues[props.data.length].strokeWidth;
 const gapWithStrokeWidth = charStrokeWidth + props.gap;
 const r = props.radius || startValues[props.data.length].r;
@@ -244,8 +246,8 @@ strokes.push(...updateStrokes(props.data));
           :y2="localCircleCenterY - r + charStrokeWidth" :stroke-width="charStrokeWidth" stroke="#cccccc" />
         <circle :r="stroke.newR" :cx="localCircleCenterX" :cy="localCircleCenterY" class="pie"
           :stroke-width="charStrokeWidth" stroke="#cccccc" :stroke-dasharray="stroke.strokeDasharray" fill="none" />
-        <line :x1="stroke.circleCenterBefore" x2="100" :y1="stroke.centerLineY" :y2="stroke.centerLineY"
-          :stroke-width="charStrokeWidth" stroke="#cccccc" />
+        <line :x1="stroke.circleCenterBefore" :x2="stroke.endCenterLine" :y1="stroke.centerLineY"
+          :y2="stroke.centerLineY" :stroke-width="charStrokeWidth" stroke="#cccccc" />
         <line :x1="stroke.bottomLineX" :x2="stroke.bottomLineX" :y1="stroke.fillTopLineY1" y2="0"
           :stroke-width="charStrokeWidth" :stroke="stroke.color" />
         <line :x1="stroke.bottomLineX" :x2="stroke.bottomLineX" :y2="stroke.fillBottomLineX"
@@ -257,7 +259,6 @@ strokes.push(...updateStrokes(props.data));
           :y2="stroke.centerLineY" :stroke-width="charStrokeWidth" :stroke="stroke.color" />
       </template>
     </svg>
-    {{ props.circleCenterX }}
     <div class="chart-info" :style="{
       top: localCircleCenterY + '%',
       left: localCircleCenterX + '%',

@@ -8,7 +8,7 @@ const HomePage = () => {
       {
         id: 1,
         color: '#5CA82E',
-        progress: 66,
+        progress: 100,
 
       },
       {
@@ -66,7 +66,7 @@ const HomePage = () => {
 
       },
 
-    ].filter((__, i) => i < 7);
+    ].filter((__, i) => i < 4);
   }, [ ]);
   return (
     <div>
